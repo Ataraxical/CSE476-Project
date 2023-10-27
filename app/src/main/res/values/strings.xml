@@ -16,4 +16,9 @@
     <string name="loginLoginText">Login</string>
     <string name="loginForgotText">Forgot Password?</string>
     <string name="loginSignupText">Don\'t have an account? Sign Up</string>
+    <string name="recommended_games_nav">Recommended</string>
+
+    <string name="take_photo">Take Photo</string>
+    <string name="start_capture">Start Capture</string>
+    <string name="stop_capture">Stop Capture</string>
 </resources>

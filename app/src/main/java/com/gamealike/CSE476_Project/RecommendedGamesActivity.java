@@ -1,10 +1,13 @@
 package com.gamealike.CSE476_Project;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.view.PreviewView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,6 +16,7 @@ import java.util.List;
 public class RecommendedGamesActivity extends AppCompatActivity {
 
     private LinearLayout gameCardsContainer;
+    private Button buttonAddGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,5 +51,15 @@ public class RecommendedGamesActivity extends AppCompatActivity {
             ((LinearLayout) gameCardsContainer).addView(gameCard);
         }
 
+        buttonAddGame = findViewById(R.id.add_game);
+
+        buttonAddGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(RecommendedGamesActivity.this, AddGameActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }
