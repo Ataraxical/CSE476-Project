@@ -104,7 +104,7 @@ public class ConfigureGenresActivity extends AppCompatActivity {
 
                     // Create new intent when input is valid
                     // pass the list of selected genres to the next activity
-                    Intent recommendedGames = new Intent(ConfigureGenresActivity.this, RecommendedGamesActivity.class);
+                    Intent recommendedGames = new Intent(ConfigureGenresActivity.this, HomeActivity.class);
                     recommendedGames.putStringArrayListExtra("genres", selectedGenres);
                     startActivity(recommendedGames);
                 }
