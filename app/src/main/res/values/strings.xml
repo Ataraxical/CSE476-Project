@@ -19,4 +19,6 @@
     <string name="title_activity_home">HomeActivity</string>
     <string name="title_recommended">Recommended</string>
     <string name="title_profile">Profile</string>
+    <string name="game_tag_default">Game Tag</string>
+    <string name="game_date_prefix">"Released on "</string>
 </resources>

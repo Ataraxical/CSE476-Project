@@ -1,10 +1,10 @@
 package com.gamealike.CSE476_Project;
 
 import android.os.Bundle;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -33,4 +33,7 @@ public class HomeActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
     }
 
+    private Fragment getCurrentFragment() {
+        return getSupportFragmentManager().findFragmentById(R.id.container);
+    }
 }
