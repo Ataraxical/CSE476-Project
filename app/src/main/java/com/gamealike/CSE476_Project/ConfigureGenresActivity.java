@@ -104,9 +104,18 @@ public class ConfigureGenresActivity extends AppCompatActivity {
 
                     // Create new intent when input is valid
                     // pass the list of selected genres to the next activity
+                    /*
                     Intent recommendedGames = new Intent(ConfigureGenresActivity.this, RecommendedGamesActivity.class);
                     recommendedGames.putStringArrayListExtra("genres", selectedGenres);
                     startActivity(recommendedGames);
+                     */ // Currently commented out to opt for a home activity start
+
+
+                    // Instead of starting RecommendedGamesActivity start HomeActivity
+                    Intent homeActivity = new Intent(ConfigureGenresActivity.this, HomeActivity.class);
+                    homeActivity.putStringArrayListExtra("genres", selectedGenres);
+                    startActivity(homeActivity);
+
                 }
             }
         });
