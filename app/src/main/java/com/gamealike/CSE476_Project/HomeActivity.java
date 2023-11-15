@@ -23,12 +23,14 @@ public class HomeActivity extends AppCompatActivity {
 
     private ActivityHomeBinding binding;
 
+    private String cookie = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // get configured genres data
-        List<String> configuredGenres = getIntent().getStringArrayListExtra("genres");
+        cookie = getIntent().getStringExtra("cookie");
 
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -36,7 +38,7 @@ public class HomeActivity extends AppCompatActivity {
         // Get the ViewModel for HomeActivity to store genres for fragment access
         HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         // Set the passed in configured genres for the ViewModel
-        homeViewModel.setConfiguredGenres(configuredGenres);
+        //homeViewModel.setConfiguredGenres(configuredGenres);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each

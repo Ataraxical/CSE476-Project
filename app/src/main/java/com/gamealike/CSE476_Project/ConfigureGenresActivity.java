@@ -2,6 +2,8 @@ package com.gamealike.CSE476_Project;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -11,71 +13,40 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import GameAlikeApiInterface.ApiInterface;
 
 
 public class ConfigureGenresActivity extends AppCompatActivity {
 
-    private ArrayList<String> selectedGenres = new ArrayList<>();
+    private LinearLayout genresContainer;
+
+    private ArrayList<Integer> selectedGenres = new ArrayList<>();
+    private ArrayList<CheckBox> checkBoxList = new ArrayList<>();
+
+    private HashMap<CheckBox, Integer> checkboxMap = new HashMap<>();
+
+    private String cookie = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configure_genres);
 
+        this.cookie = getIntent().getStringExtra("cookie");
 
-        LinearLayout genresContainer = findViewById(R.id.genresContainer);
+        genresContainer = findViewById(R.id.genresContainer);
 
-        String[] genres = getResources().getStringArray(R.array.genres);
-
-            List<CheckBox> checkBoxList = new ArrayList<>(genres.length);
-
-
-
-        // Iterate over each genre to create checkboxes
-        for (int i = 0; i < (genres.length + 1)/2; i++) {
-
-            LayoutInflater inflater = (LayoutInflater) getSystemService(this.LAYOUT_INFLATER_SERVICE);
-            View checkBoxRow = inflater.inflate(R.layout.genre_checkbox_row, null);
-
-            // Create and add the first entry
-            CheckBox checkBox1 = checkBoxRow.findViewWithTag("checkbox_left");
-            checkBox1.setText(genres[i * 2]);
-            checkBox1.setId(View.generateViewId());
-            checkBoxList.add(checkBox1);
-
-            // Check if restored data indicates this
-            // genre checkbox had been selected
-            if (selectedGenres.contains(genres[i*2])) {
-                checkBox1.setChecked(true);
-            }
-
-            // If there is a second entry in this row, create and add it
-            if (i * 2 + 1 < genres.length) {
-                CheckBox checkBox2 = checkBoxRow.findViewWithTag("checkbox_right");
-                checkBox2.setText(genres[i * 2 + 1]);
-                checkBox2.setId(View.generateViewId());
-                //checkBox2.setTextSize(25);
-                checkBoxList.add(checkBox2);
-
-                if (selectedGenres.contains(genres[i*2+1])) {
-                    checkBox2.setChecked(true);
-                }
-            }
-
-            else {
-                CheckBox checkBox2 = checkBoxRow.findViewWithTag("checkbox_right");
-
-                // Cast the inflated view as a Linear Layout and the empty checkbox from it.
-                ((LinearLayout) checkBoxRow).removeView(checkBox2);
-            }
-
-            // Add the row to the parent container
-            genresContainer.addView(checkBoxRow);
-        }
-
-
+        this.loadGenres();
 
         // Find the continue button and create logic for moving
         // to the next activity, with input validation (>= 1 box checked)
@@ -90,23 +61,14 @@ public class ConfigureGenresActivity extends AppCompatActivity {
                 selectedGenres.clear();
                 for (CheckBox checkBox : checkBoxList) {
                     if (checkBox.isChecked()) {
-                        selectedGenres.add(checkBox.getText().toString());
+                        selectedGenres.add(checkboxMap.get(checkBox));
                     }
                 }
 
                 if (selectedGenres.size() == 0) {
                     Toast.makeText(ConfigureGenresActivity.this, getResources().getString(R.string.configGenresToast), Toast.LENGTH_SHORT).show();
                 } else {
-                    /*
-                    selectedGenres.setLength(selectedGenres.length() - 2); // Remove the trailing comma and space
-                    Toast.makeText(ConfigureGenresActivity.this, "Selected genres: " + selectedGenres.toString(), Toast.LENGTH_SHORT).show();
-                     */
-
-                    // Create new intent when input is valid
-                    // pass the list of selected genres to the next activity
-                    Intent homeActivity = new Intent(ConfigureGenresActivity.this, HomeActivity.class);
-                    homeActivity.putStringArrayListExtra("genres", selectedGenres);
-                    startActivity(homeActivity);
+                    sendGenres();
                 }
             }
         });
@@ -124,12 +86,81 @@ public class ConfigureGenresActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);
 
-        savedInstanceState.putStringArrayList("savedGenres", selectedGenres);
+        savedInstanceState.putIntegerArrayList("savedGenres", selectedGenres);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
-        selectedGenres = savedInstanceState.getStringArrayList("savedGenres");
+        selectedGenres = savedInstanceState.getIntegerArrayList("savedGenres");
+    }
+
+    private void loadGenres() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            JSONObject data;
+            try {
+                data = ApiInterface.getGenres(this.cookie);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            final JSONObject finalData = data;
+            handler.post(() -> {
+                try {
+                    JSONArray genres = finalData.getJSONArray("data");
+                    for (int i = 0; i < genres.length(); i++) {
+                        JSONObject genre = genres.getJSONObject(i);
+                        String name = genre.getString("genre");
+                        int id = genre.getInt("id");
+
+                        LayoutInflater inflater = (LayoutInflater) getSystemService(this.LAYOUT_INFLATER_SERVICE);
+                        View checkBoxRow = inflater.inflate(R.layout.genre_checkbox_row, null);
+
+                        // Create and add the first entry
+                        CheckBox checkbox = checkBoxRow.findViewWithTag("checkbox");
+                        checkbox.setText(name);
+                        checkbox.setId(View.generateViewId());
+                        checkBoxList.add(checkbox);
+
+                        checkboxMap.put(checkbox, id);
+
+                        // Check if restored data indicates this
+                        // genre checkbox had been selected
+                        if (selectedGenres.contains(id)) {
+                            checkbox.setChecked(true);
+                        }
+
+                        // Add the row to the parent container
+                        genresContainer.addView(checkBoxRow);
+                    }
+                } catch (JSONException e) {
+                    Toast.makeText(ConfigureGenresActivity.this, "Unable to load genres.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
+    private void sendGenres() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            JSONObject data;
+            try {
+                data = ApiInterface.setUserPreferences(selectedGenres, cookie);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            handler.post(() -> {
+                Intent homeActivity = new Intent(ConfigureGenresActivity.this, HomeActivity.class);
+                homeActivity.putExtra("genres", cookie);
+                startActivity(homeActivity);
+            });
+        });
     }
 }

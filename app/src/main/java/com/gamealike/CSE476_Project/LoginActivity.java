@@ -1,19 +1,37 @@
 package com.gamealike.CSE476_Project;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import GameAlikeApiInterface.ApiInterface;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText emailEditText, passwordEditText;
     private Button loginButton;
     private TextView forgotPasswordTextView, signUpTextView;
+
+    private String cookie = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,27 +50,27 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                startActivity(new Intent(LoginActivity.this, ConfigureGenresActivity.class));
-
-                // Authentication commented out for now
-                /*
-                // Perform login logic here
                 // Retrieve email and password entered by the user
-                String email = emailEditText.getText().toString().trim();s
+                String email = emailEditText.getText().toString().trim();
                 String password = passwordEditText.getText().toString().trim();
 
                 // Validate inputs and authenticate the user
                 if (isValidInput(email, password)) {
-                    // Authenticate user (you can add your authentication logic here)
-                    // If authentication is successful, navigate to the main screen
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish(); // Close the login activity
+                    try {
+                        attemptLogin(email, password);
+                        if (!cookie.equals("")) {
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish(); // Close the login activity
+                        }
+                    } catch (JSONException e) {
+                        Toast.makeText(LoginActivity.this, "Invalid email or password.",
+                                Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     // Display an error message
-                    Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Email or password cannot be blank.",
+                            Toast.LENGTH_SHORT).show();
                 }
-                 */
             }
         });
 
@@ -66,23 +84,130 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-
-
-        /*
         // Set onClickListener for the "Sign Up" link
         signUpTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Navigate to the sign-up activity
-                // Example: startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
+                // Retrieve email and password entered by the user
+                String email = emailEditText.getText().toString().trim();
+                String password = passwordEditText.getText().toString().trim();
+
+                // Validate inputs and authenticate the user
+                if (isValidInput(email, password)) {
+                    try {
+                        attemptCreateAccount(email, password);
+                    } catch (JSONException e) {
+                        Toast.makeText(LoginActivity.this, "Unable to create account.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // Display an error message
+                    Toast.makeText(LoginActivity.this, "Email or password cannot be blank.", Toast.LENGTH_SHORT).show();
+                }
             }
-        });*/
+        });
     }
 
     // Function to validate email and password
     private boolean isValidInput(String email, String password) {
         // Implement your validation logic here
         return !email.isEmpty() && !password.isEmpty();
+    }
+
+    private void attemptCreateAccount(String email, String password) throws JSONException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            JSONObject data;
+            try {
+                data = ApiInterface.createUser(email, password, email);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            final JSONObject finalData = data;
+            handler.post(() -> {
+                try {
+                    this.cookie = finalData.getString("cookie");
+                    this.loginSuccess();
+                } catch (JSONException e) {
+                    Toast.makeText(LoginActivity.this, "Unable to create account.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
+    private void createAccountSuccess() {
+        loginSuccess();
+    }
+
+    private void attemptLogin(String email, String password) throws JSONException {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            JSONObject data;
+            try {
+                data = ApiInterface.userLogin(email, password);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            final JSONObject finalData = data;
+            handler.post(() -> {
+                try {
+                    this.cookie = finalData.getString("cookie");
+                    this.loginSuccess();
+                } catch (JSONException e) {
+                    Toast.makeText(LoginActivity.this, "Unable to create account.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
+    private void loginSuccess() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            JSONObject data;
+            try {
+                data = ApiInterface.getUserPreferences(this.cookie);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            final JSONObject finalData = data;
+            handler.post(() -> {
+                try {
+                    JSONArray genres = finalData.getJSONArray("data");
+                    if (genres.length() == 0)
+                        openConfigure();
+                    else
+                        openMain();
+                } catch (JSONException e) {
+                    Toast.makeText(LoginActivity.this, "Unable to load account.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
+    private void openConfigure() {
+        Intent config = new Intent(LoginActivity.this, ConfigureGenresActivity.class);
+        config.putExtra("cookie", this.cookie);
+        startActivity(config);
+        finish(); // Close the login activity
+    }
+
+    private void openMain() {
+        Intent config = new Intent(LoginActivity.this, HomeActivity.class);
+        config.putExtra("cookie", this.cookie);
+        startActivity(config);
+        finish(); // Close the login activity
     }
 
 

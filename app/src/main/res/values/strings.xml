@@ -11,7 +11,7 @@
     </string-array>
     <string name="configGenresToast">Please select at least one genre</string>
     <string name="configGenresBanner">What genres do you enjoy?</string>
-    <string name="loginEmailHint">Email or Username</string>
+    <string name="loginEmailHint">Email</string>
     <string name="loginPasswordHint">Password</string>
     <string name="loginLoginText">Login</string>
     <string name="loginForgotText">Forgot Password?</string>
