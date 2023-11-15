@@ -1,7 +1,9 @@
 package com.gamealike.CSE476_Project.ui.home;
 
+
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,10 +24,14 @@ import java.util.List;
 
 import com.gamealike.CSE476_Project.R;
 import com.gamealike.CSE476_Project.databinding.FragmentHomeBinding;
+import com.gamealike.CSE476_Project.ui.gameinfo.GameInfoFragment;
+
+import GameAlikeApiInterface.ApiInterface;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
+    private ArrayList<Button> gameButtons = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -53,6 +60,7 @@ public class HomeFragment extends Fragment {
 
         // Iterate through each save genre the user has configured
         for (String genre : selectedGenres) {
+
             // Create a scroll view for each genre row
             HorizontalScrollView genreRowScroll = new HorizontalScrollView(requireContext());
 
@@ -69,6 +77,17 @@ public class HomeFragment extends Fragment {
                 String gameNum = Integer.toString(i); // Remove later, this is to show change
                 gameTitle.setText(genre + " Game " + gameNum); // currently just set game title to genre and iteration
 
+                // Bind game's button and add to list of buttons
+                Button gameButton = gameCard.findViewWithTag("info");
+                gameButton.setText("Game Info");
+                gameButtons.add(gameButton);
+
+                // Add click listener to button
+                gameButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) { onGameClick(view, 1); }
+                });
+
                 // Cast as linear layout and add new card
                 ((LinearLayout) genreRow).addView(gameCard);
             }
@@ -79,8 +98,25 @@ public class HomeFragment extends Fragment {
             genresContainer.addView(genreRowScroll);
         }
 
+        for (Button gameButton : gameButtons) {
+            gameButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) { onGameClick(view, 1); }
+            });
+        }
+
+        // set event listener for each game button
+
         // view was the return from binding.getRoot from above
         return view;
+    }
+
+    public void onGameClick(View view, int game_id) {
+        // Go to GameInfo from click response on a game
+        // Game will later be replaced by a game class
+        //Intent intent = new Intent(HomeFragment.this.getActivity(), GameInfoFragment.class);
+        //intent.putExtra("game to look up", game);
+        //HomeFragment.this.getActivity().startService(intent);
     }
 
 
