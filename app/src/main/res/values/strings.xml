@@ -16,4 +16,7 @@
     <string name="loginLoginText">Login</string>
     <string name="loginForgotText">Forgot Password?</string>
     <string name="loginSignupText">Don\'t have an account? Sign Up</string>
+    <string name="pageRefreshedText">Page Refreshed!</string>
+    <string name="shakeInstructionText">Shake the device to refresh the page.</string>
+    <string name="accelData">Accleration: x = %1$f, y = %2$f, z = %3$f</string>
 </resources>

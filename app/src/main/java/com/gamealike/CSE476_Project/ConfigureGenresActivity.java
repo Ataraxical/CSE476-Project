@@ -8,8 +8,10 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Button;
 import android.widget.Toast;
-
+import GameAlikeApiInterface.ApiInterface;
 import androidx.appcompat.app.AppCompatActivity;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ public class ConfigureGenresActivity extends AppCompatActivity {
 
     private ArrayList<String> selectedGenres = new ArrayList<>();
 
+    JSONObject data = ApiInterface.getGenres("");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,40 +29,56 @@ public class ConfigureGenresActivity extends AppCompatActivity {
 
 
         LinearLayout genresContainer = findViewById(R.id.genresContainer);
+        List<String> genres = new ArrayList<>();
 
-        String[] genres = getResources().getStringArray(R.array.genres);
+        //String[] genres = getResources().getStringArray(R.array.genres);
+        JSONObject data = ApiInterface.userLogin("test@test.com", "test");
+        System.out.println(data);
+        try {
+            String cookie = data.getString("cookie");
+            JSONArray genre_data = ApiInterface.getGenres(cookie).getJSONArray("data");
+            for (int i = 0; i < genre_data.length(); i++) {
+                String genre = genre_data.getString(i);
+                genres.add(genre);
+            }
+        }
 
-            List<CheckBox> checkBoxList = new ArrayList<>(genres.length);
+        catch (Exception e) {
 
+        }
+
+
+
+        List<CheckBox> checkBoxList = new ArrayList<>(genres.size());
 
 
         // Iterate over each genre to create checkboxes
-        for (int i = 0; i < (genres.length + 1)/2; i++) {
+        for (int i = 0; i < (genres.size() + 1)/2; i++) {
 
             LayoutInflater inflater = (LayoutInflater) getSystemService(this.LAYOUT_INFLATER_SERVICE);
             View checkBoxRow = inflater.inflate(R.layout.genre_checkbox_row, null);
 
             // Create and add the first entry
             CheckBox checkBox1 = checkBoxRow.findViewWithTag("checkbox_left");
-            checkBox1.setText(genres[i * 2]);
+            checkBox1.setText(genres.get(i * 2));
             checkBox1.setId(View.generateViewId());
             checkBoxList.add(checkBox1);
 
             // Check if restored data indicates this
             // genre checkbox had been selected
-            if (selectedGenres.contains(genres[i*2])) {
+            if (selectedGenres.contains(genres.get(i*2))) {
                 checkBox1.setChecked(true);
             }
 
             // If there is a second entry in this row, create and add it
-            if (i * 2 + 1 < genres.length) {
+            if (i * 2 + 1 < genres.size()) {
                 CheckBox checkBox2 = checkBoxRow.findViewWithTag("checkbox_right");
-                checkBox2.setText(genres[i * 2 + 1]);
+                checkBox2.setText(genres.get(i * 2 + 1));
                 checkBox2.setId(View.generateViewId());
                 //checkBox2.setTextSize(25);
                 checkBoxList.add(checkBox2);
 
-                if (selectedGenres.contains(genres[i*2+1])) {
+                if (selectedGenres.contains(genres.get(i*2+1))) {
                     checkBox2.setChecked(true);
                 }
             }
