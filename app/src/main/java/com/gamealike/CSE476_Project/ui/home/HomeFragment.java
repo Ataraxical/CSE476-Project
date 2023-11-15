@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +33,7 @@ import GameAlikeApiInterface.ApiInterface;
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-    private ArrayList<Button> gameButtons = new ArrayList<>();
+    //private ArrayList<Button> gameButtons = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -77,16 +79,28 @@ public class HomeFragment extends Fragment {
                 String gameNum = Integer.toString(i); // Remove later, this is to show change
                 gameTitle.setText(genre + " Game " + gameNum); // currently just set game title to genre and iteration
 
+                // Create Button to launch GameInfoFragment
                 // Bind game's button and add to list of buttons
                 Button gameButton = gameCard.findViewWithTag("info");
                 gameButton.setText("Game Info");
-                gameButtons.add(gameButton);
 
-                // Add click listener to button
                 gameButton.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view) { onGameClick(view, 1); }
+                    public void onClick(View v) {
+                        // Handle button click to launch GameInfoFragment
+                        launchGameInfoFragment();
+                    }
                 });
+
+
+
+                //gameButtons.add(gameButton);
+
+                // Add click listener to button
+//                gameButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) { onGameClick(view, 1); }
+//                });
 
                 // Cast as linear layout and add new card
                 ((LinearLayout) genreRow).addView(gameCard);
@@ -98,12 +112,12 @@ public class HomeFragment extends Fragment {
             genresContainer.addView(genreRowScroll);
         }
 
-        for (Button gameButton : gameButtons) {
-            gameButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) { onGameClick(view, 1); }
-            });
-        }
+//        for (Button gameButton : gameButtons) {
+//            gameButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) { onGameClick(view, 1); }
+//            });
+//        }
 
         // set event listener for each game button
 
@@ -111,13 +125,20 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    public void onGameClick(View view, int game_id) {
-        // Go to GameInfo from click response on a game
-        // Game will later be replaced by a game class
-        //Intent intent = new Intent(HomeFragment.this.getActivity(), GameInfoFragment.class);
-        //intent.putExtra("game to look up", game);
-        //HomeFragment.this.getActivity().startService(intent);
+    private void launchGameInfoFragment() {
+        // Switch HomeFragment with GameInfoFragment
+        GameInfoFragment gameInfoFragment = new GameInfoFragment();
+        // container may need to be changed to fragment_container
+        requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, gameInfoFragment).addToBackStack(null).commit();
     }
+
+//    public void onGameClick(View view, int game_id) {
+//        // Go to GameInfo from click response on a game
+//        // Game will later be replaced by a game class
+//        //Intent intent = new Intent(HomeFragment.this.getActivity(), GameInfoFragment.class);
+//        //intent.putExtra("game to look up", game);
+//        //HomeFragment.this.getActivity().startService(intent);
+//    }
 
 
     @Override
@@ -127,3 +148,4 @@ public class HomeFragment extends Fragment {
     }
 
 }
+
