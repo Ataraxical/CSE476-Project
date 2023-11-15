@@ -4,17 +4,22 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class HomeViewModel extends ViewModel {
-    private MutableLiveData<List<String>> configuredGenres = new MutableLiveData<>();
+    private MutableLiveData<HashMap<Integer, String>> configuredGenres = new MutableLiveData<>();
 
-    public void setConfiguredGenres(List<String> genres) {
-        configuredGenres.setValue(genres);
+    public void setConfiguredGenres(List<Integer> ids, List<String> names) {
+        HashMap<Integer, String> values = new HashMap<>();
+        for (int i = 0; i < ids.size(); i++)
+            values.put(ids.get(i), names.get(i));
+
+        configuredGenres.setValue(values);
     }
 
     // This part was recommended by GPT to observe within lifecycle
-    public LiveData<List<String>> getConfiguredGenres() {
+    public LiveData<HashMap<Integer, String>> getConfiguredGenres() {
         return configuredGenres;
     }
 }

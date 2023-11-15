@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="4dp">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:tag="title"
         android:textAlignment="center"
-        android:textSize="35dp"
-        >
-    </TextView>
+        android:textSize="35dp"></TextView>
 
     <ImageView
         android:layout_width="match_parent"
@@ -25,8 +23,7 @@
         android:layout_height="wrap_content"
         android:tag="info" />
     <!-- https://stackoverflow.com/questions/5049852/android-drawing-separator-divider-line-in-layout -->
-    <View
-        style="@style/Divider">
+    <View style="@style/Divider">
 
     </View>
 

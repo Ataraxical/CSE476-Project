@@ -28,7 +28,6 @@ public class RecommendedGamesActivity extends AppCompatActivity {
 
 
         for(String genre : selectedGenres){
-
             // Create an inflater to generate cards for games
             // in future, this would pull games from a database
             // and populate fields that way, hopefully there is a decent way

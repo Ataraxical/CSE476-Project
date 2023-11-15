@@ -15,6 +15,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import com.gamealike.CSE476_Project.databinding.ActivityHomeBinding;
@@ -37,6 +39,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // Get the ViewModel for HomeActivity to store genres for fragment access
         HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        //homeViewModel.setConfiguredGenres(genres);
         // Set the passed in configured genres for the ViewModel
         //homeViewModel.setConfiguredGenres(configuredGenres);
 
@@ -51,7 +54,7 @@ public class HomeActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.navView, navController);
     }
 
-    private Fragment getCurrentFragment() {
-        return getSupportFragmentManager().findFragmentById(R.id.container);
+    public String getCookie() {
+        return this.cookie;
     }
 }

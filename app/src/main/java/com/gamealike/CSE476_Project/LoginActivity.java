@@ -1,8 +1,6 @@
 package com.gamealike.CSE476_Project;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,8 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,6 +29,8 @@ public class LoginActivity extends AppCompatActivity {
     private TextView forgotPasswordTextView, signUpTextView;
 
     private String cookie = "";
+    private ArrayList<Integer> genreIDs = new ArrayList<>();
+    private ArrayList<String> genreNames = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,8 +128,8 @@ public class LoginActivity extends AppCompatActivity {
             final JSONObject finalData = data;
             handler.post(() -> {
                 try {
-                    this.cookie = finalData.getString("cookie");
-                    this.loginSuccess();
+                    cookie = finalData.getString("cookie");
+                    loginSuccess();
                 } catch (JSONException e) {
                     Toast.makeText(LoginActivity.this, "Unable to create account.",
                             Toast.LENGTH_SHORT).show();
@@ -158,8 +157,8 @@ public class LoginActivity extends AppCompatActivity {
             final JSONObject finalData = data;
             handler.post(() -> {
                 try {
-                    this.cookie = finalData.getString("cookie");
-                    this.loginSuccess();
+                    cookie = finalData.getString("cookie");
+                    loginSuccess();
                 } catch (JSONException e) {
                     Toast.makeText(LoginActivity.this, "Unable to create account.",
                             Toast.LENGTH_SHORT).show();
@@ -184,10 +183,17 @@ public class LoginActivity extends AppCompatActivity {
             handler.post(() -> {
                 try {
                     JSONArray genres = finalData.getJSONArray("data");
-                    if (genres.length() == 0)
+                    if (genres.length() == 0) {
                         openConfigure();
-                    else
+                    } else {
+                        for (int i = 0; i < genres.length(); i++) {
+                            JSONObject genre = genres.getJSONObject(i);
+                            this.genreIDs.add(genre.getInt("id"));
+                            this.genreNames.add(genre.getString("genre"));
+                        }
+
                         openMain();
+                    }
                 } catch (JSONException e) {
                     Toast.makeText(LoginActivity.this, "Unable to load account.",
                             Toast.LENGTH_SHORT).show();
@@ -204,9 +210,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void openMain() {
-        Intent config = new Intent(LoginActivity.this, HomeActivity.class);
-        config.putExtra("cookie", this.cookie);
-        startActivity(config);
+        Intent main = new Intent(LoginActivity.this, HomeActivity.class);
+        main.putExtra("cookie", this.cookie);
+        main.putIntegerArrayListExtra("genreIDs", this.genreIDs);
+        main.putStringArrayListExtra("genreNames", this.genreNames);
+        startActivity(main);
         finish(); // Close the login activity
     }
 
