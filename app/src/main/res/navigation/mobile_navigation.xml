@@ -6,6 +6,16 @@
     app:startDestination="@+id/navigation_recommended">
 
     <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.gamealike.CSE476_Project.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" >
+        <!--<action
+            android:id=""
+            app:destination="@id/navigation_home" />-->
+    </fragment>
+
+    <fragment
         android:id="@+id/navigation_recommended"
         android:name="com.gamealike.CSE476_Project.ui.recommended.RecommendedFragment"
         android:label="@string/title_recommended"
