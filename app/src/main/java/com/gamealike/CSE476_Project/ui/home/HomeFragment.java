@@ -42,7 +42,6 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         // Create view object to call which is root of this fragment's layout
         // This view will be returned at the end of onCreateView
@@ -51,68 +50,67 @@ public class HomeFragment extends Fragment {
         // Get the ViewModel
         homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
 
-        homeViewModel.getConfiguredGenres().observe(getViewLifecycleOwner(), new Observer<List<String>>(){
-            @Override
-            public void onChanged(List<String> genres) {
-                // Handle changes in configured genres
-                selectedGenres = genres;
-            }
-        });
-
-        //
-        // Initialize dynamic views
-        //
-
-
         // Find correct container to set genres rows in
         LinearLayout genresContainer = binding.llHomeGenresContainer;
 
         // Create inflater for activity this fragment is associated with
         LayoutInflater layoutInflater = requireActivity().getLayoutInflater();
 
-        // Iterate through each save genre the user has configured
-        for (String genre : selectedGenres) {
+        // Observe changes in configured genres
+        homeViewModel.getConfiguredGenres().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
+            @Override
+            public void onChanged(List<String> genres) {
+                // Handle changes in configured genres
+                selectedGenres = genres;
 
-            // Create a scroll view for each genre row
-            HorizontalScrollView genreRowScroll = new HorizontalScrollView(requireContext());
+                // Clear existing views before adding updated views
+                genresContainer.removeAllViews();
 
-            // Inflate rows
-            View genreRow = layoutInflater.inflate(R.layout.genre_row, null);
+                //
+                // Dynamic views
+                //
+                // Iterate through each saved genre the user has configured
+                for (String genre : selectedGenres) {
+                    // Create a scroll view for each genre row
+                    HorizontalScrollView genreRowScroll = new HorizontalScrollView(requireContext());
 
-            // Create 3 game card entries for each genre
-            for (int i = 0; i < 3; i++) {
-                // Use inflater to generate cards for games
-                View gameCard = layoutInflater.inflate(R.layout.game_card, null);
+                    // Inflate rows
+                    View genreRow = layoutInflater.inflate(R.layout.genre_row, null);
 
-                // Find game's title
-                TextView gameTitle = gameCard.findViewWithTag("title");
-                String gameNum = Integer.toString(i); // Remove later, this is to show change
-                gameTitle.setText(genre + " Game " + gameNum); // currently just set game title to genre and iteration
+                    // Create 3 game card entries for each genre
+                    for (int i = 0; i < 3; i++) {
+                        // Use inflater to generate cards for games
+                        View gameCard = layoutInflater.inflate(R.layout.game_card, null);
 
-                // Create Button to launch GameInfoFragment
-                // Bind game's button and add to list of buttons
-                Button gameButton = gameCard.findViewWithTag("info");
-                gameButton.setText("Game Info");
+                        // Find game's title
+                        TextView gameTitle = gameCard.findViewWithTag("title");
+                        String gameNum = Integer.toString(i); // Remove later, this is to show change
+                        gameTitle.setText(genre + " Game " + gameNum);
 
-                gameButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Handle button click to launch GameInfoFragment
-                        launchGameInfoFragment();
+                        // Create Button to launch GameInfoFragment
+                        // Bind game's button and add to list of buttons
+                        Button gameButton = gameCard.findViewWithTag("info");
+                        gameButton.setText("Game Info");
+
+                        gameButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // Handle button click to launch GameInfoFragment
+                                launchGameInfoFragment();
+                            }
+                        });
+
+                        // Cast as linear layout and add new card
+                        ((LinearLayout) genreRow).addView(gameCard);
                     }
-                });
 
-                //gameButtons.add(gameButton);
-
-                // Cast as linear layout and add new card
-                ((LinearLayout) genreRow).addView(gameCard);
+                    // Add genre row to scrolling container
+                    genreRowScroll.addView(genreRow);
+                    // Add row scrolling container to parent vertical container
+                    genresContainer.addView(genreRowScroll);
+                }
             }
-
-            // Add genre row to scrolling container
-            genreRowScroll.addView(genreRow);
-            // Add row scrolling container to parent vertical container
-            genresContainer.addView(genreRowScroll);
-        }
+        });
 
         // view was the return from binding.getRoot from above
         return view;
@@ -122,15 +120,6 @@ public class HomeFragment extends Fragment {
         // Switch HomeFragment with GameInfoFragment
         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_home).navigate(R.id.navigation_game_info);
     }
-
-//    public void onGameClick(View view, int game_id) {
-//        // Go to GameInfo from click response on a game
-//        // Game will later be replaced by a game class
-//        //Intent intent = new Intent(HomeFragment.this.getActivity(), GameInfoFragment.class);
-//        //intent.putExtra("game to look up", game);
-//        //HomeFragment.this.getActivity().startService(intent);
-//    }
-
 
     @Override
     public void onDestroyView() {
