@@ -1,5 +1,7 @@
 package com.gamealike.CSE476_Project.game;
 
+import java.util.ArrayList;
+
 public class Game {
     private final int id;
     private final String name;
@@ -7,6 +9,8 @@ public class Game {
     private final String price;
     private final String description;
     private final String date;
+
+    private ArrayList<Integer> genres;
 
     public Game(
             int id,
@@ -22,6 +26,8 @@ public class Game {
         this.price = price;
         this.description = description;
         this.date = date;
+
+        this.genres = new ArrayList<>();
     }
 
     public int getId() {
@@ -46,5 +52,13 @@ public class Game {
 
     public String getDate() {
         return date;
+    }
+
+    public ArrayList<Integer> getGenres() {
+        return new ArrayList<>(this.genres);
+    }
+
+    public void setGenres(ArrayList<Integer> genres) {
+        this.genres = genres;
     }
 }

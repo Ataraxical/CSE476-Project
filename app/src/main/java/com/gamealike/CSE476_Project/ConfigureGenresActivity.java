@@ -158,7 +158,7 @@ public class ConfigureGenresActivity extends AppCompatActivity {
 
             handler.post(() -> {
                 Intent homeActivity = new Intent(ConfigureGenresActivity.this, HomeActivity.class);
-                homeActivity.putExtra("genres", cookie);
+                homeActivity.putExtra("cookie", this.cookie);
                 startActivity(homeActivity);
             });
         });

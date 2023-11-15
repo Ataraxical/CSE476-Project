@@ -46,9 +46,6 @@ public class HomeFragment extends Fragment {
 
     private String cookie = "";
 
-    private HashMap<Integer, Genre> loadedListings;
-    private HashMap<Integer, Game> loadedGames;
-
     // selectedGenres from configured genres
 
 
@@ -131,14 +128,21 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    private void launchGameInfoFragment() {
+    private void launchGameInfoFragment(int id) {
         // Switch HomeFragment with GameInfoFragment
-        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_home).navigate(R.id.navigation_game_info);
+        Bundle bundle = new Bundle();
+        bundle.putInt("id", id);
+        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_home).navigate(R.id.navigation_game_info, bundle);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        this.loadGames();
+        HomeActivity activity = (HomeActivity) getActivity();
+        if (activity.getLoadedListings() == null) {
+            activity.loadGames(this);
+        } else {
+            makeListings();
+        }
     }
 
     @Override
@@ -147,83 +151,16 @@ public class HomeFragment extends Fragment {
         binding = null;
     }
 
-    private void loadGames() {
-        HomeActivity activity = (HomeActivity) getActivity();
-        if (activity == null)
-            return;
-
-        this.cookie = activity.getCookie();
-        if (this.cookie.equals(""))
-            return;
-
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Handler handler = new Handler(Looper.getMainLooper());
-
-        executor.execute(() -> {
-            JSONObject data;
-            try {
-                data = ApiInterface.getRecommendations(0, this.cookie);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            final JSONObject finalData = data;
-            handler.post(() -> {
-                try {
-                    JSONArray games = finalData.getJSONArray("data");
-
-                    loadedListings = new HashMap<>();
-                    loadedGames = new HashMap<>();
-
-                    for (int i = 0; i < games.length(); i++) {
-                        JSONObject game = games.getJSONObject(i);
-                        int id = Integer.parseInt(game.getString("game_id"));
-                        JSONArray genres = game.getJSONArray("game_genres");
-                        String name = game.getString("game_name");
-                        String image = game.getString("game_cover");
-                        String price = game.getString("game_price");
-                        String description = game.getString("game_description");
-                        String date = game.getString("release_date");
-
-                        for (int j = 0; j < genres.length(); j++) {
-                            int genreID = genres.getJSONObject(j).getInt("id");
-                            if (!loadedListings.containsKey(genreID))
-                                loadedListings.put(genreID, new Genre(genreID, genres.getJSONObject(j).getString("genre")));
-
-                            Game newGame = new Game(
-                                    id,
-                                    name,
-                                    image,
-                                    price,
-                                    description,
-                                    date
-                            );
-
-                            if (!loadedGames.containsKey(id)) {
-                                loadedListings.get(genreID).addGame(newGame);
-                                loadedGames.put(id, newGame);
-                            }
-                        }
-                    }
-
-                    makeListings();
-
-                } catch (JSONException e) {
-                    Toast.makeText(activity, "Unable to load account.",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
-    }
-
-    private void makeListings() {
+    public void makeListings() {
         // Find correct container to set genres rows in
         LinearLayout genresContainer = binding.llHomeGenresContainer;
 
         // Create inflater for activity this fragment is associated with
         LayoutInflater layoutInflater = requireActivity().getLayoutInflater();
 
-        for (Genre genre : loadedListings.values()) {
+        HomeActivity activity = (HomeActivity) getActivity();
+
+        for (Genre genre : activity.getLoadedListings().values()) {
             if (genre.getGames().size() == 0)
                 continue;
 
@@ -251,7 +188,7 @@ public class HomeFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         // Handle button click to launch GameInfoFragment
-                        launchGameInfoFragment();
+                        launchGameInfoFragment(game.getId());
                     }
                 });
 

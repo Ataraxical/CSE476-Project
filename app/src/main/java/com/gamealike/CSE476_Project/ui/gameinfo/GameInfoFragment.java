@@ -21,8 +21,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
+import com.gamealike.CSE476_Project.HomeActivity;
 import com.gamealike.CSE476_Project.R;
 import com.gamealike.CSE476_Project.databinding.FragmentGameinfoBinding;
+import com.gamealike.CSE476_Project.game.Game;
+import com.gamealike.CSE476_Project.game.Genre;
 import com.google.android.flexbox.FlexboxLayout;
 
 import java.io.IOException;
@@ -36,12 +39,7 @@ public class GameInfoFragment extends Fragment {
     private FragmentGameinfoBinding binding;
 
     private LayoutInflater inflater;
-
-    private String title = "";
-    private String imageUrl = "";
-    private String price = "";
-    private String date = "";
-    private String description = "";
+    private Game game;
     private ArrayList<String> tags = new ArrayList<>();
     private TextView textPrice;
     private TextView textDate;
@@ -50,45 +48,13 @@ public class GameInfoFragment extends Fragment {
 
     private FlexboxLayout gameTags;
 
-    public void setGameInfo(String title, String price, String date, String description,
-                            String imageUrl, String[] tags) {
-        this.title = title;
-        this.imageUrl = imageUrl;
-        this.price = price;
-        this.date = date;
-        this.description = description;
-        this.tags = new ArrayList<>(Arrays.asList(tags));
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setPrice(int price) {
-        if (price == 0) {
-            this.price = "free";
-        } else {
-            this.price = "$" + (float) price / 100;
-        }
-    }
-
-    public void setDate(int month, int day, int year) {
-        this.date = month + "/" + day + "/" + year;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setImageUrl(String url) {
-        this.imageUrl = url;
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         GameInfoViewModel profileViewModel =
                 new ViewModelProvider(this).get(GameInfoViewModel.class);
+
+        this.inflater = inflater;
 
         binding = FragmentGameinfoBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -106,6 +72,11 @@ public class GameInfoFragment extends Fragment {
 
         gameTags = view.findViewById(R.id.game_tags);
 
+        if (getArguments() != null) {
+            HomeActivity activity = (HomeActivity) getActivity();
+            this.game = activity.getGame(getArguments().getInt("id"));
+        }
+
         this.loadAllInfo();
     }
 
@@ -116,16 +87,20 @@ public class GameInfoFragment extends Fragment {
     }
 
     private void loadAllInfo() {
-        textPrice.setText(price);
-        String date = getString(R.string.game_date_prefix) + this.date;
+        textPrice.setText(game.getPrice());
+        String date = getString(R.string.game_date_prefix) + game.getDate();
         textDate.setText(date);
-        textDescription.setText(description);
+        textDescription.setText(game.getDescription());
         this.loadTags();
         this.loadImage();
     }
 
     private void loadTags() {
-        for (String tag : tags) {
+        HomeActivity activity = (HomeActivity) getActivity();
+
+        for (int id : this.game.getGenres()) {
+            Genre genre = activity.getGenre(id);
+            String tag = genre.getName();
             View tagView = inflater.inflate(R.layout.game_tag, null, false);
             TextView tagText = tagView.findViewById(R.id.text_name);
 
@@ -136,7 +111,7 @@ public class GameInfoFragment extends Fragment {
     }
 
     private void loadImage() {
-        if (this.imageUrl.equals(""))
+        if (game.getImage().equals(""))
             return;
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -145,7 +120,7 @@ public class GameInfoFragment extends Fragment {
         executor.execute(() -> {
             Bitmap image = null;
             try {
-                URL url = new URL(this.imageUrl);
+                URL url = new URL(game.getImage());
                 image = BitmapFactory.decodeStream(url.openStream());
             } catch(IOException e) {
                 e.printStackTrace();
