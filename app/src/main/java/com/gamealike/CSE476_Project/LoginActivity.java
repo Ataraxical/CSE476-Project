@@ -138,10 +138,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void createAccountSuccess() {
-        loginSuccess();
-    }
-
     private void attemptLogin(String email, String password) throws JSONException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
@@ -168,6 +164,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginSuccess() {
+        if (this.cookie.equals(""))
+            return;
+
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 

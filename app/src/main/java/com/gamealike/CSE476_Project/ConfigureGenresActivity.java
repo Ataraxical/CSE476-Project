@@ -96,6 +96,9 @@ public class ConfigureGenresActivity extends AppCompatActivity {
     }
 
     private void loadGenres() {
+        if (this.cookie.equals(""))
+            return;
+
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 
@@ -145,6 +148,9 @@ public class ConfigureGenresActivity extends AppCompatActivity {
     }
 
     private void sendGenres() {
+        if (this.cookie.equals(""))
+            return;
+
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
 

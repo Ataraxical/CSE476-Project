@@ -1,5 +1,7 @@
 package com.gamealike.CSE476_Project.game;
 
+import android.graphics.Bitmap;
+
 import java.util.ArrayList;
 
 public class Game {
@@ -9,6 +11,8 @@ public class Game {
     private final String price;
     private final String description;
     private final String date;
+
+    private Bitmap loadedImage = null;
 
     private ArrayList<Integer> genres;
 
@@ -42,6 +46,10 @@ public class Game {
         return image;
     }
 
+    public Bitmap getLoadedImage() {
+        return this.loadedImage;
+    }
+
     public String getPrice() {
         return price;
     }
@@ -60,5 +68,9 @@ public class Game {
 
     public void setGenres(ArrayList<Integer> genres) {
         this.genres = genres;
+    }
+
+    public void setLoadedImage(Bitmap image) {
+        this.loadedImage = image;
     }
 }

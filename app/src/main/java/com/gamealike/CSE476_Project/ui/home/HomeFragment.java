@@ -3,6 +3,8 @@ package com.gamealike.CSE476_Project.ui.home;
 
 import androidx.lifecycle.ViewModelProvider;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -16,11 +18,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,91 +46,14 @@ public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
 
-    // ViewModel for data storing from HomeActivity
-    private HomeViewModel homeViewModel;
-
     private String cookie = "";
-
-    // selectedGenres from configured genres
 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
-        // Create view object to call which is root of this fragment's layout
-        // This view will be returned at the end of onCreateView
-        View view = binding.getRoot();
-
-        // Get the ViewModel
-        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
-
-        // Find correct container to set genres rows in
-        LinearLayout genresContainer = binding.llHomeGenresContainer;
-
-        // Create inflater for activity this fragment is associated with
-        LayoutInflater layoutInflater = requireActivity().getLayoutInflater();
-
-        /*
-        // Observe changes in configured genres
-        homeViewModel.getConfiguredGenres().observe(getViewLifecycleOwner(), new Observer<HashMap<Integer, String>>() {
-            @Override
-            public void onChanged(HashMap<Integer, String> genres) {
-                // Handle changes in configured genres
-                selectedGenres = genres;
-
-                // Clear existing views before adding updated views
-                genresContainer.removeAllViews();
-
-                //
-                // Dynamic views
-                //
-                // Iterate through each saved genre the user has configured
-                for (int genre : selectedGenres) {
-                    // Create a scroll view for each genre row
-                    HorizontalScrollView genreRowScroll = new HorizontalScrollView(requireContext());
-
-                    // Inflate rows
-                    View genreRow = layoutInflater.inflate(R.layout.genre_row, null);
-
-                    // Create 3 game card entries for each genre
-                    for (int i = 0; i < 3; i++) {
-                        // Use inflater to generate cards for games
-                        View gameCard = layoutInflater.inflate(R.layout.game_card, null);
-
-                        // Find game's title
-                        TextView gameTitle = gameCard.findViewWithTag("title");
-                        String gameNum = Integer.toString(i); // Remove later, this is to show change
-                        gameTitle.setText(genre + " Game " + gameNum);
-
-                        // Create Button to launch GameInfoFragment
-                        // Bind game's button and add to list of buttons
-                        Button gameButton = gameCard.findViewWithTag("info");
-                        gameButton.setText("Game Info");
-
-                        gameButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // Handle button click to launch GameInfoFragment
-                                launchGameInfoFragment();
-                            }
-                        });
-
-                        // Cast as linear layout and add new card
-                        ((LinearLayout) genreRow).addView(gameCard);
-                    }
-
-                    // Add genre row to scrolling container
-                    genreRowScroll.addView(genreRow);
-                    // Add row scrolling container to parent vertical container
-                    genresContainer.addView(genreRowScroll);
-                }
-            }
-        });
-         */
-
-        // view was the return from binding.getRoot from above
-        return view;
+        return binding.getRoot();
     }
 
     private void launchGameInfoFragment(int id) {
@@ -184,6 +112,9 @@ public class HomeFragment extends Fragment {
                 Button gameButton = gameCard.findViewWithTag("info");
                 gameButton.setText("Game Info");
 
+                ImageView imageView = gameCard.findViewWithTag("image");
+                loadImage(game, imageView);
+
                 gameButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -201,6 +132,34 @@ public class HomeFragment extends Fragment {
             // Add row scrolling container to parent vertical container
             genresContainer.addView(genreRowScroll);
         }
+    }
+
+    private void loadImage(Game game, ImageView imageView) {
+        if (game.getImage().equals(""))
+            return;
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            Bitmap image = null;
+            try {
+                URL url = new URL(game.getImage());
+                image = BitmapFactory.decodeStream(url.openStream());
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+
+            final Bitmap finalImage = image;
+            handler.post(() -> {
+                if (finalImage != null) {
+                    imageView.setImageBitmap(finalImage);
+                    game.setLoadedImage(finalImage);
+                } else {
+                    Toast.makeText(getContext(), "Unable to load image.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
     }
 }
 

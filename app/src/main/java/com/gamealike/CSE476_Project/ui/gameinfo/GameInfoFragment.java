@@ -111,6 +111,10 @@ public class GameInfoFragment extends Fragment {
     }
 
     private void loadImage() {
+        if (game.getLoadedImage() != null) {
+            this.image.setImageBitmap(game.getLoadedImage());
+            return;
+        }
         if (game.getImage().equals(""))
             return;
 
