@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.helper.widget.Flow;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
 import com.gamealike.CSE476_Project.R;
 import com.gamealike.CSE476_Project.databinding.FragmentGameinfoBinding;
@@ -85,10 +87,10 @@ public class GameInfoFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        GameInfoViewModel profileViewModel =
+                new ViewModelProvider(this).get(GameInfoViewModel.class);
+
         binding = FragmentGameinfoBinding.inflate(inflater, container, false);
-
-        this.inflater = inflater;
-
         return binding.getRoot();
     }
 
@@ -159,4 +161,10 @@ public class GameInfoFragment extends Fragment {
             });
         });
     }
+
+    private void returnHome()
+    {
+        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_home).navigate(R.id.navigation_home);
+    }
+
 }

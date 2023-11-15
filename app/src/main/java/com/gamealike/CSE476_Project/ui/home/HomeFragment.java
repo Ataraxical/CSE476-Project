@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -127,9 +128,10 @@ public class HomeFragment extends Fragment {
 
     private void launchGameInfoFragment() {
         // Switch HomeFragment with GameInfoFragment
-        GameInfoFragment gameInfoFragment = new GameInfoFragment();
+        //GameInfoFragment gameInfoFragment = new GameInfoFragment();
         // container may need to be changed to fragment_container
-        requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, gameInfoFragment).addToBackStack(null).commit();
+        //requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, gameInfoFragment).addToBackStack(null).commit();
+        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_home).navigate(R.id.navigation_game_info);
     }
 
 //    public void onGameClick(View view, int game_id) {
