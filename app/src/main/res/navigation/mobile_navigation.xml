@@ -7,21 +7,33 @@
 
     <fragment
         android:id="@+id/navigation_recommended"
-        android:name="com.gamealike.CSE476_Project.ui.profile.ProfileFragment"
+        android:name="com.gamealike.CSE476_Project.ui.recommended.RecommendedFragment"
         android:label="@string/title_recommended"
         tools:layout="@layout/fragment_recommended" >
         <action
             android:id="@+id/action_navigation_home_to_navigation_notifications"
             app:destination="@id/navigation_profile" />
+        <action
+            android:id="@+id/action_navigation_recommended_to_navigation_game_info"
+            app:destination="@id/navigation_game_info" />
     </fragment>
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.gamealike.CSE476_Project.ui.recommended.RecommendedFragment"
+        android:name="com.gamealike.CSE476_Project.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" >
         <action
             android:id="@+id/action_navigation_notifications_to_navigation_home"
+            app:destination="@id/navigation_recommended" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_game_info"
+        android:name="com.gamealike.CSE476_Project.ui.gameinfo.GameInfoFragment"
+        android:label="@string/title_game_info"
+        tools:layout="@layout/fragment_gameinfo" >
+        <action
+            android:id="@+id/action_navigation_game_info_to_navigation_recommended"
             app:destination="@id/navigation_recommended" />
     </fragment>
 </navigation>
