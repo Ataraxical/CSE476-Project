@@ -1,16 +1,15 @@
 package com.gamealike.CSE476_Project.ui.home;
 
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
@@ -22,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Button;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.gamealike.CSE476_Project.R;
@@ -34,7 +32,12 @@ import GameAlikeApiInterface.ApiInterface;
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-    //private ArrayList<Button> gameButtons = new ArrayList<>();
+
+    // ViewModel for data storing from HomeActivity
+    private HomeViewModel homeViewModel;
+// selectedGenres from configured genres
+    private List<String> selectedGenres = new ArrayList<>();
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -44,16 +47,22 @@ public class HomeFragment extends Fragment {
         // Create view object to call which is root of this fragment's layout
         // This view will be returned at the end of onCreateView
         View view = binding.getRoot();
-        HomeViewModel homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+
+        // Get the ViewModel
+        homeViewModel = new ViewModelProvider(requireActivity()).get(HomeViewModel.class);
+
+        homeViewModel.getConfiguredGenres().observe(getViewLifecycleOwner(), new Observer<List<String>>(){
+            @Override
+            public void onChanged(List<String> genres) {
+                // Handle changes in configured genres
+                selectedGenres = genres;
+            }
+        });
 
         //
         // Initialize dynamic views
         //
 
-        String[] genres = getResources().getStringArray(R.array.genres); // TEMPORARY
-        // genres data from user configured genres, originally implemented
-        // as pulling intent data from ConfigureGenresActivity
-        List<String> selectedGenres = Arrays.asList(genres);
 
         // Find correct container to set genres rows in
         LinearLayout genresContainer = binding.llHomeGenresContainer;
