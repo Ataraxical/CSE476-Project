@@ -11,15 +11,18 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.gamealike.CSE476_Project.R;
 import com.gamealike.CSE476_Project.databinding.FragmentHomeBinding;
-//import com.gamealike.CSE476_Project.ui.home.HomeViewModel;
 
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
+
+    // Layout for genres that the user configured
+    private LinearLayout genresContainer;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
