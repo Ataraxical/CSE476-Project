@@ -93,15 +93,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
 
-
-
                 //gameButtons.add(gameButton);
-
-                // Add click listener to button
-//                gameButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) { onGameClick(view, 1); }
-//                });
 
                 // Cast as linear layout and add new card
                 ((LinearLayout) genreRow).addView(gameCard);
@@ -113,24 +105,12 @@ public class HomeFragment extends Fragment {
             genresContainer.addView(genreRowScroll);
         }
 
-//        for (Button gameButton : gameButtons) {
-//            gameButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) { onGameClick(view, 1); }
-//            });
-//        }
-
-        // set event listener for each game button
-
         // view was the return from binding.getRoot from above
         return view;
     }
 
     private void launchGameInfoFragment() {
         // Switch HomeFragment with GameInfoFragment
-        //GameInfoFragment gameInfoFragment = new GameInfoFragment();
-        // container may need to be changed to fragment_container
-        //requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, gameInfoFragment).addToBackStack(null).commit();
         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_home).navigate(R.id.navigation_game_info);
     }
 
