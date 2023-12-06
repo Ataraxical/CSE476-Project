@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,6 +36,8 @@ public class ConfigureGenresActivity extends AppCompatActivity {
 
     private HashMap<CheckBox, Integer> checkboxMap = new HashMap<>();
 
+    private HashSet<Integer> alreadySelected = new HashSet<>();
+
     private String cookie = "";
 
     @Override
@@ -46,7 +49,7 @@ public class ConfigureGenresActivity extends AppCompatActivity {
 
         genresContainer = findViewById(R.id.genresContainer);
 
-        this.loadGenres();
+        this.loadSelectedGenres();
 
         // Find the continue button and create logic for moving
         // to the next activity, with input validation (>= 1 box checked)
@@ -95,6 +98,41 @@ public class ConfigureGenresActivity extends AppCompatActivity {
         selectedGenres = savedInstanceState.getIntegerArrayList("savedGenres");
     }
 
+    private void loadSelectedGenres() {
+        if (this.cookie.equals(""))
+            return;
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            JSONObject data;
+            try {
+                data = ApiInterface.getUserPreferences(this.cookie);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            final JSONObject finalData = data;
+            handler.post(() -> {
+                try {
+                    JSONArray genres = finalData.getJSONArray("data");
+                    for (int i = 0; i < genres.length(); i++) {
+                        JSONObject genre = genres.getJSONObject(i);
+                        int id = genre.getInt("id");
+                        alreadySelected.add(id);
+
+                        loadGenres();
+                    }
+                } catch (JSONException e) {
+                    Toast.makeText(ConfigureGenresActivity.this,
+                            "Unable to load already selected genres.",
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
     private void loadGenres() {
         if (this.cookie.equals(""))
             return;
@@ -124,6 +162,7 @@ public class ConfigureGenresActivity extends AppCompatActivity {
 
                         // Create and add the first entry
                         CheckBox checkbox = checkBoxRow.findViewWithTag("checkbox");
+                        checkbox.setChecked(alreadySelected.contains(id));
                         checkbox.setText(name);
                         checkbox.setId(View.generateViewId());
                         checkBoxList.add(checkbox);

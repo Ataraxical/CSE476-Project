@@ -80,6 +80,9 @@ public class HomeFragment extends Fragment {
     }
 
     public void makeListings() {
+        if (!this.isVisible())
+            return;
+
         // Find correct container to set genres rows in
         LinearLayout genresContainer = binding.llHomeGenresContainer;
 
@@ -97,6 +100,9 @@ public class HomeFragment extends Fragment {
 
             // Inflate rows
             View genreRow = layoutInflater.inflate(R.layout.genre_row, null);
+            LinearLayout ll = genreRow.findViewById(R.id.row);
+            TextView genreTitle = genreRow.findViewById(R.id.text_title);
+            genreTitle.setText(genre.getName());
 
             // Create 3 game card entries for each genre
             for (Game game : genre.getGames()) {
@@ -124,7 +130,7 @@ public class HomeFragment extends Fragment {
                 });
 
                 // Cast as linear layout and add new card
-                ((LinearLayout) genreRow).addView(gameCard);
+                ll.addView(gameCard);
             }
 
             // Add genre row to scrolling container

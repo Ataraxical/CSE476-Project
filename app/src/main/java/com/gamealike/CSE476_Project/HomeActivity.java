@@ -121,6 +121,9 @@ public class HomeActivity extends AppCompatActivity {
                             int genreID = genres.getJSONObject(j).getInt("id");
                             if (!loadedListings.containsKey(genreID))
                                 loadedListings.put(genreID, new Genre(genreID, genres.getJSONObject(j).getString("genre")));
+                            Genre genre = loadedListings.get(genreID);
+                            if (genre.size() >= 3)
+                                continue;
 
                             Game newGame = new Game(
                                     id,
@@ -138,7 +141,7 @@ public class HomeActivity extends AppCompatActivity {
                             newGame.setGenres(gameGenres);
 
                             if (!loadedGames.containsKey(id)) {
-                                loadedListings.get(genreID).addGame(newGame);
+                                genre.addGame(newGame);
                                 loadedGames.put(id, newGame);
                             }
                         }

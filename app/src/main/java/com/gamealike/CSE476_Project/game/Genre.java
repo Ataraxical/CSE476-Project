@@ -30,4 +30,8 @@ public class Genre {
     public void addGame(Game game) {
         this.games.put(game.getId(), game);
     }
+
+    public int size() {
+        return this.games.size();
+    }
 }
